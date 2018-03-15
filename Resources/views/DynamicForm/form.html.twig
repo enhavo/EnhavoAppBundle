@@ -1,0 +1,35 @@
+{% form_theme formItem _self %}
+{% trans_default_domain 'EnhavoGridBundle' %}
+
+<div class="dynamic-form-item" data-dynamic-form-item>
+    <div class="button-container">
+        <div class="button button-up" data-dynamic-form-item-action-up>
+            <i class="icon-chevron-up"></i>
+        </div>
+        <div class="button button-down" data-dynamic-form-item-action-down>
+            <i class="icon-chevron-down"></i>
+        </div>
+        <div class="button button-delete" data-dynamic-form-item-action-remove>
+            <i class="icon-cross"></i>
+        </div>
+        <div class="button button-collapse" data-dynamic-form-item-action-collapse>
+            <i class="icon-collapse"></i>
+        </div>
+        <div class="button button-expand" data-dynamic-form-item-action-expand>
+            <i class="icon-expand"></i>
+        </div>
+        <div class="label">{{ label|trans|nl2br }}</div>
+    </div>
+
+    <div data-dynamic-form-item-container>
+        {% for itemType in formItem.children %}
+            <div class="clearfix" data-form-row>
+                <div class="col-md-2 label-container">{{ form_label(itemType) }}</div>
+                <div class="col-md-10">{{ form_widget(itemType) }}</div>
+            </div>
+        {% endfor %}
+    </div>
+
+    <input type="hidden" class="typeInput" name="{{ formName }}[type]" value="{{ formType }}">
+    <input type="hidden" data-dynamic-form-item-order class="orderInput" name="{{ formName }}[order]" value="{{ formOrder }}">
+</div>
