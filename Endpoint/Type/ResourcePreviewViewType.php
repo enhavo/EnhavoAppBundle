@@ -6,15 +6,16 @@
  * @author gseidel
  */
 
-namespace Enhavo\Bundle\AppBundle\View\Type;
+
+namespace Enhavo\Bundle\AppBundle\Endpoint\Type;
 
 use Enhavo\Bundle\AppBundle\Preview\StrategyResolver;
-use Enhavo\Bundle\AppBundle\Resource\ResourceManager;
 use Enhavo\Bundle\AppBundle\View\AbstractViewType;
 use Enhavo\Bundle\AppBundle\View\ResourceMetadataHelperTrait;
 use Enhavo\Bundle\AppBundle\View\TemplateData;
 use Enhavo\Bundle\AppBundle\View\ViewData;
 use Enhavo\Bundle\AppBundle\View\ViewUtil;
+use Enhavo\Bundle\ResourceBundle\Resource\ResourceManager;
 use Sylius\Bundle\ResourceBundle\Controller\NewResourceFactoryInterface;
 use Sylius\Bundle\ResourceBundle\Controller\ResourceFormFactoryInterface;
 use Sylius\Bundle\ResourceBundle\Controller\SingleResourceProviderInterface;
@@ -28,13 +29,15 @@ class ResourcePreviewViewType extends AbstractViewType
     use ResourceMetadataHelperTrait;
 
     public function __construct(
-        private ViewUtil $util,
-        private StrategyResolver $strategyResolver,
+        private ViewUtil                        $util,
+        private StrategyResolver                $strategyResolver,
         private SingleResourceProviderInterface $singleResourceProvider,
-        private NewResourceFactoryInterface $newResourceFactory,
-        private ResourceFormFactoryInterface $resourceFormFactory,
-        private ResourceManager $resourceManager,
-    ) {}
+        private NewResourceFactoryInterface     $newResourceFactory,
+        private ResourceFormFactoryInterface    $resourceFormFactory,
+        private ResourceManager                 $resourceManager,
+    )
+    {
+    }
 
     public static function getName(): ?string
     {

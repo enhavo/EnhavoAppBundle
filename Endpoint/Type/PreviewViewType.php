@@ -6,19 +6,18 @@
  * @author gseidel
  */
 
-namespace Enhavo\Bundle\AppBundle\View\Type;
 
-use Enhavo\Bundle\AppBundle\Action\ActionManager;
-use Enhavo\Bundle\AppBundle\Resource\ResourceManager;
+namespace Enhavo\Bundle\AppBundle\Endpoint\Type;
+
+use AppViewType;
 use Enhavo\Bundle\AppBundle\View\AbstractViewType;
 use Enhavo\Bundle\AppBundle\View\ResourceMetadataHelperTrait;
 use Enhavo\Bundle\AppBundle\View\ViewData;
 use Enhavo\Bundle\AppBundle\View\ViewUtil;
-use Sylius\Bundle\ResourceBundle\Controller\SingleResourceProvider;
+use Enhavo\Bundle\ResourceBundle\Action\ActionManager;
+use Enhavo\Bundle\ResourceBundle\Resource\ResourceManager;
 use Sylius\Bundle\ResourceBundle\Controller\SingleResourceProviderInterface;
-use Sylius\Component\Resource\Metadata\Metadata;
-use Sylius\Component\Resource\Model\ResourceInterface;
-use Sylius\Component\Resource\Repository\RepositoryInterface;
+use Enhavo\Bundle\ResourceBundle\Model\ResourceInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Routing\RouterInterface;
@@ -28,13 +27,15 @@ class PreviewViewType extends AbstractViewType
     use ResourceMetadataHelperTrait;
 
     public function __construct(
-        private ViewUtil $util,
-        private RouterInterface $router,
-        private ActionManager $actionManager,
-        private RequestStack $requestStack,
-        private ResourceManager $resourceManager,
+        private ViewUtil                        $util,
+        private RouterInterface                 $router,
+        private ActionManager                   $actionManager,
+        private RequestStack                    $requestStack,
+        private ResourceManager                 $resourceManager,
         private SingleResourceProviderInterface $singleResourceProvider,
-    ) {}
+    )
+    {
+    }
 
     public static function getName(): string|null
     {
