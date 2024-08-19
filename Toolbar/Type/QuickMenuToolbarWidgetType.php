@@ -6,8 +6,9 @@
  * Time: 14:21
  */
 
-namespace Enhavo\Bundle\AppBundle\Toolbar\Widget;
+namespace Enhavo\Bundle\AppBundle\Toolbar\Type;
 
+use Enhavo\Bundle\ApiBundle\Data\Data;
 use Enhavo\Bundle\AppBundle\Toolbar\AbstractToolbarWidgetType;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Routing\RouterInterface;
@@ -15,26 +16,20 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 class QuickMenuToolbarWidgetType extends AbstractToolbarWidgetType
 {
-    /**
-     * @var RouterInterface
-     */
-    private $router;
-
-    public function __construct(TranslatorInterface $translator, RouterInterface $router)
+    public function __construct(
+        private readonly TranslatorInterface $translator,
+        private readonly RouterInterface $router,
+    )
     {
-        parent::__construct($translator);
-        $this->router = $router;
     }
 
-    public function createViewData($name, array $options)
+    public function createViewData(array $options, Data $data): void
     {
-        $data = parent::createViewData($name, $options);
         $data['menu'] = $this->createMenu($options['menu']);
         $data['icon'] = $options['icon'];
-        return $data;
     }
 
-    private function createMenu(array $menu)
+    private function createMenu(array $menu): array
     {
         $data = [];
         foreach($menu as $config) {
@@ -52,10 +47,10 @@ class QuickMenuToolbarWidgetType extends AbstractToolbarWidgetType
         if (isset($config['url'])) {
             return $config['url'];
         } elseif(isset($config['route'])) {
-            return $this->router->generate($config['route'], isset($config['route_parameters']) ? $config['route_parameters'] : []);
+            return $this->router->generate($config['route'], $config['route_parameters'] ?? []);
         }
 
-        throw new \InvalidArgumentException(sprintf('A menu of quick menu need either url or route option'));
+        throw new \InvalidArgumentException('A menu of quick menu need either url or route option');
     }
 
     private function getMenuTarget($config)
@@ -71,21 +66,21 @@ class QuickMenuToolbarWidgetType extends AbstractToolbarWidgetType
         return $config['target'];
     }
 
-    private function getMenuLabel($config)
+    private function getMenuLabel($config): string
     {
         if(!isset($config['label'])) {
             throw new \InvalidArgumentException(sprintf('A menu of quick need a label'));
         }
 
-        return $this->translator->trans($config['label'], [], isset($config['translation_domain']) ? $config['translation_domain'] : null);
+        return $this->translator->trans($config['label'], [], $config['translation_domain'] ?? null);
     }
 
-    public function configureOptions(OptionsResolver $resolver)
+    public function configureOptions(OptionsResolver $resolver): void
     {
-        parent::configureOptions($resolver);
         $resolver->setDefaults([
-           'icon' => null,
-            'component' => 'quick-menu-widget'
+            'icon' => null,
+            'component' => 'toolbar-widget-quick-menu',
+            'model' => 'QuickMenuToolbarWidget',
         ]);
 
         $resolver->setRequired([
@@ -93,7 +88,7 @@ class QuickMenuToolbarWidgetType extends AbstractToolbarWidgetType
         ]);
     }
 
-    public function getType()
+    public static function getName(): ?string
     {
         return 'quick_menu';
     }

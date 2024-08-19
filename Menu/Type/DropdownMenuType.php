@@ -6,57 +6,37 @@
  * Time: 17:43
  */
 
-namespace Enhavo\Bundle\AppBundle\Menu\Menu;
+namespace Enhavo\Bundle\AppBundle\Menu\Type;
 
-use Enhavo\Bundle\AppBundle\Menu\AbstractMenu;
+use Enhavo\Bundle\ApiBundle\Data\Data;
+use Enhavo\Bundle\AppBundle\Menu\AbstractMenuType;
 use Symfony\Component\OptionsResolver\OptionsResolver;
-use Symfony\Component\Routing\RouterInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
-class DropdownMenu extends AbstractMenu
+class DropdownMenuType extends AbstractMenuType
 {
-    /**
-     * @var TranslatorInterface
-     */
-    protected $translator;
-
-    /**
-     * @var RouterInterface
-     */
-    protected $router;
-
-    /**
-     * BaseMenu constructor.
-     *
-     * @param TranslatorInterface $translator
-     * @param RouterInterface $router
-     */
-    public function __construct(TranslatorInterface $translator, RouterInterface $router)
+    public function __construct(
+        private readonly TranslatorInterface $translator,
+    )
     {
-        $this->translator = $translator;
-        $this->router = $router;
     }
 
-    public function createViewData(array $options)
+    public function createViewData(array $options, Data $data): void
     {
         $value = $this->getValue($options);
         $choices = $this->getChoices($options);
 
-        $data = [
+        $data->add([
             'info' => $this->translator->trans($options['info'], [], $options['translation_domain']),
             'choices' => $this->formatChoices($choices, $options['translation_domain']),
             'label' => $this->translator->trans($options['label'], [], $options['translation_domain']),
             'value' => $value,
             'event' => $options['event'],
             'selectedValue' => $this->getInitialValue($value, $choices, $options['translation_domain']),
-        ];
-
-        $parentData = parent::createViewData($options);
-        $data = array_merge($parentData, $data);
-        return $data;
+        ]);
     }
 
-    private function formatChoices(array $choices, $translationDomain)
+    private function formatChoices(array $choices, $translationDomain): array
     {
         $data = [];
         foreach($choices as $value => $label) {
@@ -68,7 +48,7 @@ class DropdownMenu extends AbstractMenu
         return $data;
     }
 
-    private function getInitialValue($value, array $choices, $translationDomain)
+    private function getInitialValue($value, array $choices, $translationDomain): ?array
     {
         foreach($choices as $code => $label) {
             if ($value == $code) {
@@ -91,12 +71,11 @@ class DropdownMenu extends AbstractMenu
         return $options['value'];
     }
 
-    public function configureOptions(OptionsResolver $resolver)
+    public function configureOptions(OptionsResolver $resolver): void
     {
-        parent::configureOptions($resolver);
-
         $resolver->setDefaults([
             'label' => '',
+            'model' => 'DropdownMenuItem',
             'translation_domain' => null,
             'class' => '',
             'component' => 'menu-dropdown',
@@ -104,14 +83,14 @@ class DropdownMenu extends AbstractMenu
             'value' => null,
         ]);
 
-        $resolver->remove(['icon']);
+        $resolver->remove(['icon', 'route']);
         $resolver->setRequired([
             'choices',
             'event'
         ]);
     }
 
-    public function getType()
+    public static function getName(): ?string
     {
         return 'dropdown';
     }

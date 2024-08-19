@@ -6,49 +6,36 @@
  * @author gseidel
  */
 
-namespace Enhavo\Bundle\AppBundle\Menu\Menu;
+namespace Enhavo\Bundle\AppBundle\Menu\Type;
 
-use Enhavo\Bundle\AppBundle\Menu\AbstractMenu;
+use Enhavo\Bundle\ApiBundle\Data\Data;
+use Enhavo\Bundle\AppBundle\Menu\MenuTypeInterface;
 use Enhavo\Bundle\AppBundle\Util\StateEncoder;
+use Enhavo\Component\Type\AbstractType;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Routing\RouterInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
-class BaseMenu extends AbstractMenu
+class BaseMenuType extends AbstractType implements MenuTypeInterface
 {
-    /**
-     * @var TranslatorInterface
-     */
-    private $translator;
-
-    /**
-     * @var RouterInterface
-     */
-    private $router;
-
-    /**
-     * BaseMenu constructor.
-     *
-     * @param TranslatorInterface $translator
-     * @param RouterInterface $router
-     */
-    public function __construct(TranslatorInterface $translator, RouterInterface $router)
+    public function __construct(
+        private readonly TranslatorInterface $translator,
+        private readonly RouterInterface $router,
+    )
     {
-        $this->translator = $translator;
-        $this->router = $router;
     }
 
-    public function createViewData(array $options)
+    public function createViewData(array $options, Data $data): void
     {
         $url = $this->router->generate($options['route'], $options['route_parameters']);
-        $data = [
+        $data->add([
             'label' => $this->translator->trans($options['label'], [], $options['translation_domain']),
             'url' => $url,
             'mainUrl' => $this->generateMainUrl($url, $options),
             'icon' => $options['icon'],
             'component' => $options['component'],
+            'model' => $options['model'],
             'class' => $options['class'],
-            'active' => $this->isActive($options),
             'info' => $this->translator->trans($options['info'], [], $options['translation_domain']),
             'notification' => [
                 'class' => $options['notification_class'],
@@ -56,11 +43,7 @@ class BaseMenu extends AbstractMenu
                 'icon' => $options['notification_icon'],
                 'info' => $this->translator->trans($options['notification_info'], [], $options['translation_domain']),
             ],
-        ];
-
-        $parentData = parent::createViewData($options);
-        $data = array_merge($parentData, $data);
-        return $data;
+        ]);
     }
 
     private function generateMainUrl($url, $options)
@@ -70,17 +53,16 @@ class BaseMenu extends AbstractMenu
             'storage' => [['key' => 'menu-active-key', 'value' => $options['key']]]
         ]);
 
-        return $this->router->generate('enhavo_app_index', [
+        return $this->router->generate('enhavo_app_admin_index', [
             'state' => $state
         ]);
     }
 
-    public function configureOptions(OptionsResolver $resolver)
+    public function configureOptions(OptionsResolver $resolver): void
     {
-        parent::configureOptions($resolver);
-
         $resolver->setDefaults([
             'component' => 'menu-item',
+            'model' => 'BaseMenuItem',
             'translation_domain' => null,
             'icon' => null,
             'class' => null,
@@ -90,6 +72,9 @@ class BaseMenu extends AbstractMenu
             'notification_icon' => null,
             'notification_info' => null,
             'route_parameters' => [],
+            'role' => null,
+            'enabled' => true,
+            'key' => null,
         ]);
 
         $resolver->setRequired([
@@ -98,7 +83,17 @@ class BaseMenu extends AbstractMenu
         ]);
     }
 
-    public function getType()
+    public function getPermission(array $options): mixed
+    {
+        return $options['role'];
+    }
+
+    public function isEnabled(array $options): bool
+    {
+        return $options['enabled'];
+    }
+
+    public static function getName(): ?string
     {
         return 'base';
     }

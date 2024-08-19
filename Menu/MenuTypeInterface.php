@@ -1,21 +1,21 @@
 <?php
 /**
- * ToolbarWidgetTypeInterface.php
+ * MenuBuilderInterface.php
  *
- * @since 11/02/20
+ * @since 20/09/16
  * @author gseidel
  */
 
-namespace Enhavo\Bundle\AppBundle\Toolbar;
+namespace Enhavo\Bundle\AppBundle\Menu;
 
 use Enhavo\Bundle\ApiBundle\Data\Data;
 use Enhavo\Component\Type\TypeInterface;
 
-interface ToolbarWidgetTypeInterface extends TypeInterface
+interface MenuTypeInterface extends TypeInterface
 {
-    public function createViewData(array $options, Data $data): void;
-
     public function getPermission(array $options): mixed;
 
     public function isEnabled(array $options): bool;
+
+    public function createViewData(array $options, Data $data): void;
 }
